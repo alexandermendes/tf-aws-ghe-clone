@@ -1,6 +1,5 @@
 resource "random_password" "webhook_secret" {
   length = 32
-  special = true
 }
 
 module "lambda_api" {
