@@ -12,6 +12,8 @@ module "lambda_api" {
   handler     = "lambda_handler"
   http_method = "POST"
   environment = {
-    GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
+    variables = {
+      GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
+    }
   }
 }
