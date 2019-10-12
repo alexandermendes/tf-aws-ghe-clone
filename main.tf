@@ -6,5 +6,4 @@ module "lambda_api" {
   runtime     = "python3.7"
   handler     = "lambda_handler"
   http_method = "POST"
-  path_part   = "webhook"
 }
