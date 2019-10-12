@@ -19,4 +19,4 @@ module "clone" {
 should update it to the [latest tag](https://github.com/alexandermendes/tf-aws-lambda-api/tags).**
 
 For additional variables and outputs see [variables.tf](./variables.tf) and
-[output.tf](./output.tf), respectively.
+[outputs.tf](./outputs.tf), respectively.

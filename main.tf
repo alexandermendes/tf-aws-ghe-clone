@@ -1,5 +1,5 @@
 module "lambda_api" {
-  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=v1.2.2"
+  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=v1.2.3"
   name        = "clone_ghe_repo"
   dir         = "${path.module}/functions"
   ext         = "py"
