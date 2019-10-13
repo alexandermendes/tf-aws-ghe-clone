@@ -23,7 +23,7 @@ module "lambda_api" {
       GITHUB_REPO           = var.github_repo
       GITHUB_OWNER          = var.github_owner
 
-      S3_BUCKET_ARN         = aws_s3_bucket.codepipeline_source_bucket.arn
+      S3_BUCKET             = aws_s3_bucket.codepipeline_source_bucket.id
     }
   }
 }

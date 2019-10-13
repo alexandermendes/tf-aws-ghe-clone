@@ -32,7 +32,7 @@ const uploadToS3 = async (zipPath) => {
     apiVersion: '2006-03-01',
   });
   const params = {
-    Bucket: 'clone-source-bucket-foobar',
+    Bucket: process.env.S3_BUCKET,
     Key: 'repo.tar.gz',
     Body: fs.createReadStream(zipPath),
   };
