@@ -34,23 +34,20 @@ resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
   acl    = "private"
 }
 
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "codepipeline_role" {
   name = "test-role"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "codepipeline.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
@@ -117,10 +114,10 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       output_artifacts = ["source_output"]
 
-      configuration = {
-        Owner  = "my-organization"
-        Repo   = "test"
-        Branch = "master"
+      configuration    = {
+        S3Bucket             = "clone-source-bucket-foobar"
+        S3ObjectKey          = "zipped-repo.zip"
+        PollForSourceChanges = true
       }
     }
   }
