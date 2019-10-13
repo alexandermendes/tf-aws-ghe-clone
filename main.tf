@@ -82,8 +82,9 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 EOF
 }
 
-data "aws_kms_alias" "s3kmskey" {
-  name = "alias/myKmsKey"
+resource "aws_kms_key" "key" {
+  description             = "This key is used to encrypt bucket objects"
+  deletion_window_in_days = 10
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -95,7 +96,7 @@ resource "aws_codepipeline" "codepipeline" {
     type     = "S3"
 
     encryption_key {
-      id   = data.aws_kms_alias.s3kmskey.arn
+      id   = aws_kms_key.key.arn
       type = "KMS"
     }
   }
