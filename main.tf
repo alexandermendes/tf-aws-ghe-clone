@@ -8,7 +8,7 @@ resource "random_password" "webhook_secret" {
 
 module "lambda_api" {
   source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.5.1"
-  name        = "clone-ghe-repo"
+  name        = "clone-ghe-repo" # TODO: Add namespace
   dir         = "${path.module}/functions"
   ext         = "js"
   runtime     = "nodejs8.10"
@@ -48,18 +48,18 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "clone-ghe-repo-s3-policy"
+  name   = "${var.namespace}-clone"
   role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "codepipeline_source_bucket" {
-  bucket = "clone-source-bucket-foobar"
+  bucket = "${var.namespace}-source"
   acl    = "private"
 }
 
 resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
-  bucket = "clone-artifact-bucket-foobar"
+  bucket = "${var.namespace}-artifacts"
   acl    = "private"
 }
 
@@ -75,12 +75,12 @@ data "aws_iam_policy_document" "assume_role_policy" {
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "test-role"
+  name = "${var.namespace}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "codepipeline_policy"
+  name = "${var.namespace}-codepipeline"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF
@@ -119,7 +119,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_codepipeline" "codepipeline" {
-  name     = "tf-test-pipeline"
+  name     = var.namespace
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {

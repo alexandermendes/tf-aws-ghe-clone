@@ -1,3 +1,7 @@
+variable "namespace" {
+  description = "A namespace used to prefix resources."
+}
+
 variable "region" {
   description = "The AWS region within which the resource are being created."
 }
