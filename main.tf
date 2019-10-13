@@ -1,6 +1,6 @@
 locals {
   source_zip_name = "${var.github_repo}.tar.gz"
-  name            = replace(join("-", var.namespace, var.pipeline_name), "/^-/", "")
+  name            = replace(join("-", [var.namespace, var.pipeline_name]), "/^-/", "")
 }
 
 resource "random_password" "webhook_secret" {
