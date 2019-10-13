@@ -10,6 +10,7 @@ module "lambda_api" {
   runtime     = "nodejs8.10"
   handler     = "handler"
   http_method = "POST"
+  timeout     = 60
 
   # https://github.com/lambci/git-lambda-layer
   layers      = [
