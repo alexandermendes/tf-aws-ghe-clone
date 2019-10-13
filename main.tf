@@ -7,7 +7,7 @@ module "lambda_api" {
   name        = "clone-ghe-repo"
   dir         = "${path.module}/functions"
   ext         = "js"
-  runtime     = "nodejs10.x"
+  runtime     = "nodejs8.10"
   handler     = "handler"
   http_method = "POST"
   environment = {
