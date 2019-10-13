@@ -18,7 +18,11 @@ module "lambda_api" {
 
   environment = {
     variables = {
+      # TODO: Validate the webhook using all of these things
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
+      GITHUB_REPO           = var.github_repo
+      GITHUB_OWNER          = var.github_owner
+
       S3_BUCKET_ARN         = aws_s3_bucket.codepipeline_source_bucket.arn
     }
   }
