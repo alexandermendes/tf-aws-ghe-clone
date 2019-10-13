@@ -7,7 +7,7 @@ const fs = require('fs');
  * @param {object} repository
  *   The repository details.
  */
-const cloneAndZip = ({ name, html_url }) => {
+const cloneAndZip = ({ name, url }) => {
   const tmpDir = '/tmp';
   const zipName = 'repo.tar.gz';
   const execOpts = {
@@ -17,7 +17,7 @@ const cloneAndZip = ({ name, html_url }) => {
 
   execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpDir} && git clone --depth 1 ${html_url}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${url}`, execOpts);
 
   execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${name}`);
 
