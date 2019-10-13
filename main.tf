@@ -13,7 +13,7 @@ module "lambda_api" {
 
   # https://github.com/lambci/git-lambda-layer
   layers      = [
-    "arn:aws:lambda:${var.aws_region}:553035198032:layer:git:6"
+    "arn:aws:lambda:${var.region}:553035198032:layer:git:6"
   ]
 
   environment = {
