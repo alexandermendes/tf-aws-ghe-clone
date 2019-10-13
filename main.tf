@@ -3,7 +3,7 @@ resource "random_password" "webhook_secret" {
 }
 
 module "lambda_api" {
-  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.5.0"
+  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.5.1"
   name        = "clone-ghe-repo"
   dir         = "${path.module}/functions"
   ext         = "js"
