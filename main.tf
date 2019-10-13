@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "${local.name}-clone"
+  name   = "${local.name}-source-policy"
   role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
@@ -81,38 +81,26 @@ resource "aws_iam_role" "codepipeline_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${local.name}-codepipeline"
-  role = aws_iam_role.codepipeline_role.id
+data "aws_iam_policy_document" "s3_artifact_policy_document" {
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:GetBucketVersioning",
+      "s3:PutObject",
+    ]
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect":"Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:GetBucketVersioning",
-        "s3:PutObject"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.codepipeline_artifact_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_artifact_bucket.arn}/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codebuild:BatchGetBuilds",
-        "codebuild:StartBuild"
-      ],
-      "Resource": "*"
-    }
-  ]
+    resources = [
+      aws_s3_bucket.codepipeline_artifact_bucket.arn,
+      "${aws_s3_bucket.codepipeline_artifact_bucket.arn}/*",
+    ]
+  }
 }
-EOF
+
+resource "aws_iam_role_policy" "s3_artifact_policy" {
+  name   = "${local.name}-artifact-policy"
+  role   = aws_iam_role.codepipeline_role.id
+  policy = data.aws_iam_policy_document.s3_artifact_policy_document.json
 }
 
 resource "aws_kms_key" "key" {
