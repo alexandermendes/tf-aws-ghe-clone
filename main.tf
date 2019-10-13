@@ -31,13 +31,11 @@ module "lambda_api" {
 data "aws_iam_policy_document" "lambda_s3_policy_document" {
   statement {
     actions = [
-      "s3:GetBucketLocation",
-      "s3:GetObject",
-      "s3:GetObjectVersion",
+      "s3:PutObject",
     ]
 
     resources = [
-      "arn:aws:s3:::*"
+      aws_s3_bucket.codepipeline_source_bucket.arn
     ]
   }
 }
