@@ -43,8 +43,8 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "${var.name}-write-logs-policy"
-  role   = module.lambda_api.role_id
+  name   = "clone-ghe-repo-s3-policy"
+  role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
