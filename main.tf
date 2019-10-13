@@ -1,3 +1,7 @@
+locals {
+  source_zip_name = "${var.github_repo}.tar.gz"
+}
+
 resource "random_password" "webhook_secret" {
   length = 32
 }
@@ -25,6 +29,7 @@ module "lambda_api" {
       GITHUB_OWNER          = var.github_owner
 
       S3_BUCKET             = aws_s3_bucket.codepipeline_source_bucket.id
+      ZIP_NAME              = local.source_zip_name
     }
   }
 }
@@ -140,7 +145,7 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration    = {
         S3Bucket             = "clone-source-bucket-foobar"
-        S3ObjectKey          = "zipped-repo.zip"
+        S3ObjectKey          = local.source_zip_name
         PollForSourceChanges = true
       }
     }

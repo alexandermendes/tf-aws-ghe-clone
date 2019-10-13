@@ -9,7 +9,7 @@ const fs = require('fs');
  */
 const cloneAndZip = ({ name, url }) => {
   const tmpDir = '/tmp';
-  const zipName = 'repo.tar.gz';
+  const zipName = process.env.ZIP_NAME;
   const execOpts = {
     encoding: 'utf8',
     stdio: 'inherit',
@@ -33,7 +33,7 @@ const uploadToS3 = async (zipPath) => {
   });
   const params = {
     Bucket: process.env.S3_BUCKET,
-    Key: 'repo.tar.gz',
+    Key: process.env.ZIP_NAME,
     Body: fs.createReadStream(zipPath),
   };
 
