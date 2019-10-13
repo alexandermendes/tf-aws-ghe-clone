@@ -19,13 +19,18 @@ module "lambda_api" {
   environment = {
     variables = {
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
-      S3_BUCKET_ARN         = aws_s3_bucket.codepipeline_bucket.arn
+      S3_BUCKET_ARN         = aws_s3_bucket.codepipeline_source_bucket.arn
     }
   }
 }
 
-resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "clone-bucket"
+resource "aws_s3_bucket" "codepipeline_source_bucket" {
+  bucket = "clone-source-bucket-foobar"
+  acl    = "private"
+}
+
+resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
+  bucket = "clone-artifact-bucket-foobar"
   acl    = "private"
 }
 
@@ -65,8 +70,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:PutObject"
       ],
       "Resource": [
-        "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${aws_s3_bucket.codepipeline_artifact_bucket.arn}",
+        "${aws_s3_bucket.codepipeline_artifact_bucket.arn}/*"
       ]
     },
     {
@@ -92,7 +97,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.codepipeline_bucket.bucket
+    location = aws_s3_bucket.codepipeline_artifact_bucket.bucket
     type     = "S3"
 
     encryption_key {
@@ -107,8 +112,8 @@ resource "aws_codepipeline" "codepipeline" {
     action {
       name             = "Source"
       category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
+      owner            = "AWS"
+      provider         = "S3"
       version          = "1"
       output_artifacts = ["source_output"]
 
@@ -116,45 +121,6 @@ resource "aws_codepipeline" "codepipeline" {
         Owner  = "my-organization"
         Repo   = "test"
         Branch = "master"
-      }
-    }
-  }
-
-  stage {
-    name = "Build"
-
-    action {
-      name             = "Build"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["build_output"]
-      version          = "1"
-
-      configuration = {
-        ProjectName = "test"
-      }
-    }
-  }
-
-  stage {
-    name = "Deploy"
-
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "CloudFormation"
-      input_artifacts = ["build_output"]
-      version         = "1"
-
-      configuration = {
-        ActionMode     = "REPLACE_ON_FAILURE"
-        Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
-        OutputFileName = "CreateStackOutput.json"
-        StackName      = "MyStack"
-        TemplatePath   = "build_output::sam-templated.yaml"
       }
     }
   }
