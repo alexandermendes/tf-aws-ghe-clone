@@ -146,7 +146,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["source_output"]
 
       configuration    = {
-        S3Bucket             = "clone-source-bucket-foobar"
+        S3Bucket             = aws_s3_bucket.codepipeline_source_bucket.id
         S3ObjectKey          = local.source_zip_name
         PollForSourceChanges = true
       }
