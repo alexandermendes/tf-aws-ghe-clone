@@ -1,9 +1,17 @@
 const { execSync } = require('child_process')
 
 exports.handler = async(event) => {
-  execSync('rm -rf /tmp/*', { encoding: 'utf8', stdio: 'inherit' })
+  const { repository } = event;
+  const tmpRootDir = '/tmp';
+  const tmpRepoDir = `${tmpRootDir}/${repository.name}`;
+  const execOpts = {
+    encoding: 'utf8',
+    stdio: 'inherit',
+  };
 
-  execSync('cd /tmp && git clone https://github.com/mhart/aws4', { encoding: 'utf8', stdio: 'inherit' })
+  execSync(`rm -rf ${tmpRootDir}/*`, execOpts);
 
-  return execSync('ls /tmp/aws4', { encoding: 'utf8' }).split('\n')
+  execSync(`cd ${tmpRootDir} && git clone --depth 1 ${repository.html_url}`, execOpts);
+
+  return execSync(`ls ${tmpRepoDir}`, { encoding: 'utf8' }).split('\n')
 }
