@@ -1,17 +1,52 @@
-const { execSync } = require('child_process')
+const { execSync } = require('child_process');
+const AWS = require('aws-sdk');
+const fs = require('fs');
 
-exports.handler = async(event) => {
-  const { repository } = event;
-  const tmpRootDir = '/tmp';
-  const tmpRepoDir = `${tmpRootDir}/${repository.name}`;
+/**
+ * Clone and zip a git repo.
+ * @param {object} repository
+ *   The repository details.
+ */
+const cloneAndZip = ({ name, html_url }) => {
+  const tmpDir = '/tmp';
+  const zipName = 'repo.tar.gz';
   const execOpts = {
     encoding: 'utf8',
     stdio: 'inherit',
   };
 
-  execSync(`rm -rf ${tmpRootDir}/*`, execOpts);
+  execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpRootDir} && git clone --depth 1 ${repository.html_url}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${html_url}`, execOpts);
 
-  return execSync(`ls ${tmpRepoDir}`, { encoding: 'utf8' }).split('\n')
+  execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${name}`);
+
+  return `${tmpDir}/${zipName}`;
+};
+
+/**
+ * Upload the zip to S3.
+ */
+const uploadToS3 = async (zipPath) => {
+  const s3 = new AWS.S3({
+    apiVersion: '2006-03-01',
+  });
+  const params = {
+    Bucket: 'clone-source-bucket-foobar',
+    Key: 'repo.tar.gz',
+    Body: fs.createReadStream(zipPath),
+  };
+
+  await s3.upload(params).promise();
+};
+
+/**
+ * Run.
+ */
+exports.handler = async(event) => {
+  const { repository } = event;
+
+  const zipPath = cloneAndZip(repository);
+
+  await uploadToS3(zipPath);
 }
