@@ -3,7 +3,7 @@ resource "random_password" "webhook_secret" {
 }
 
 module "lambda_api" {
-  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.4.0"
+  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.5.0"
   name        = "clone-ghe-repo"
   dir         = "${path.module}/functions"
   ext         = "js"
@@ -26,6 +26,26 @@ module "lambda_api" {
       S3_BUCKET_ARN         = aws_s3_bucket.codepipeline_source_bucket.arn
     }
   }
+}
+
+data "aws_iam_policy_document" "lambda_s3_policy_document" {
+  statement {
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+    ]
+
+    resources = [
+      "arn:aws:s3:::*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda_s3_policy" {
+  name   = "${var.name}-write-logs-policy"
+  role   = module.lambda_api.role_id
+  policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "codepipeline_source_bucket" {
