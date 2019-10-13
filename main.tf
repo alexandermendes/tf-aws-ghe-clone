@@ -6,8 +6,8 @@ module "lambda_api" {
   source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.3.1"
   name        = "clone-ghe-repo"
   dir         = "${path.module}/functions"
-  ext         = "py"
-  runtime     = "python3.7"
+  ext         = "js"
+  runtime     = "nodejs10.x"
   handler     = "handler"
   http_method = "POST"
   environment = {
