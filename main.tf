@@ -50,18 +50,18 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "${var.name}-clone"
+  name   = "${local.name}-clone"
   role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "codepipeline_source_bucket" {
-  bucket = "${var.name}-source"
+  bucket = "${local.name}-source"
   acl    = "private"
 }
 
 resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
-  bucket = "${var.name}-artifacts"
+  bucket = "${local.name}-artifacts"
   acl    = "private"
 }
 
@@ -77,12 +77,12 @@ data "aws_iam_policy_document" "assume_role_policy" {
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.name}-role"
+  name = "${local.name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.name}-codepipeline"
+  name = "${local.name}-codepipeline"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF
@@ -121,7 +121,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_codepipeline" "codepipeline" {
-  name     = var.name
+  name     = local.name
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
