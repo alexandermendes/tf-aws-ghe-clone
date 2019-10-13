@@ -1,5 +1,10 @@
+variable "pipeline_name" {
+  description = "The name of the pipeline resources."
+}
+
 variable "namespace" {
-  description = "A namespace used to prefix resources."
+  description = "A namespace to be prepended to resource names."
+  default     = ""
 }
 
 variable "region" {

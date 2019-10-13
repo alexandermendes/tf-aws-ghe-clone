@@ -1,5 +1,6 @@
 locals {
   source_zip_name = "${var.github_repo}.tar.gz"
+  name            = replace(join("-", local.namespace, var.pipeline_name), "/^-/", "")
 }
 
 resource "random_password" "webhook_secret" {
@@ -7,14 +8,15 @@ resource "random_password" "webhook_secret" {
 }
 
 module "lambda_api" {
-  source      = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.6.0"
-  name        = "clone-ghe-repo" # TODO: Add namespace
-  dir         = "${path.module}/functions"
-  ext         = "js"
-  runtime     = "nodejs8.10"
-  handler     = "handler"
-  http_method = "POST"
-  timeout     = 60
+  source        = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.6.0"
+  function_name = "clone-ghe-repo"
+  namespace     = var.namespace
+  dir           = "${path.module}/functions"
+  ext           = "js"
+  runtime       = "nodejs8.10"
+  handler       = "handler"
+  http_method   = "POST"
+  timeout       = 60
 
   # https://github.com/lambci/git-lambda-layer
   layers      = [
@@ -48,18 +50,18 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "${var.namespace}-clone"
+  name   = "${var.name}-clone"
   role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "codepipeline_source_bucket" {
-  bucket = "${var.namespace}-source"
+  bucket = "${var.name}-source"
   acl    = "private"
 }
 
 resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
-  bucket = "${var.namespace}-artifacts"
+  bucket = "${var.name}-artifacts"
   acl    = "private"
 }
 
@@ -75,12 +77,12 @@ data "aws_iam_policy_document" "assume_role_policy" {
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.namespace}-role"
+  name = "${var.name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.namespace}-codepipeline"
+  name = "${var.name}-codepipeline"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF
@@ -119,7 +121,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_codepipeline" "codepipeline" {
-  name     = var.namespace
+  name     = var.name
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
