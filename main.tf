@@ -36,7 +36,8 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
     ]
 
     resources = [
-      aws_s3_bucket.codepipeline_source_bucket.arn
+      aws_s3_bucket.codepipeline_source_bucket.arn,
+      "${aws_s3_bucket.codepipeline_source_bucket.arn}/*",
     ]
   }
 }
