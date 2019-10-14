@@ -8,7 +8,7 @@ resource "random_password" "webhook_secret" {
 }
 
 module "lambda_api" {
-  source        = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=dev"
+  source        = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=1.6.4"
   function_name = "clone"
   namespace     = var.namespace
   dir           = "${path.module}/functions"
