@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
+      identifiers = ["codepipeline.amazonaws.com"]
     }
   }
 }
