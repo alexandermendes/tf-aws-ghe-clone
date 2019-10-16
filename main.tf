@@ -28,7 +28,7 @@ module "lambda_api" {
     variables = {
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
       ZIP_NAME              = local.source_zip_name
-      S3_BUCKET             = aws_s3_bucket.codepipeline_source_bucket.id
+      S3_BUCKET             = aws_s3_bucket.bucket.id
     }
   }
 }
@@ -40,8 +40,8 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
     ]
 
     resources = [
-      aws_s3_bucket.codepipeline_source_bucket.arn,
-      "${aws_s3_bucket.codepipeline_source_bucket.arn}/*",
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*",
     ]
   }
 }
@@ -52,7 +52,7 @@ resource "aws_iam_role_policy" "lambda_s3_policy" {
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
-resource "aws_s3_bucket" "codepipeline_source_bucket" {
+resource "aws_s3_bucket" "bucket" {
   bucket = "${local.name}-source"
   acl    = "private"
 }
