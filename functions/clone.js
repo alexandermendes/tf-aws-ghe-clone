@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { execSync } = require('child_process');
 const AWS = require('aws-sdk');
 const fs = require('fs');
@@ -7,7 +8,7 @@ const fs = require('fs');
  * @param {object} repository
  *   The repository details.
  */
-const cloneAndZip = ({ name, url }) => {
+const cloneAndZip = ({ name, clone_url }) => {
   const tmpDir = '/tmp';
   const zipName = process.env.ZIP_NAME;
   const execOpts = {
@@ -17,7 +18,7 @@ const cloneAndZip = ({ name, url }) => {
 
   execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpDir} && git clone --depth 1 ${url}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${clone_url}`, execOpts);
 
   execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${name}`);
 
@@ -41,15 +42,19 @@ const uploadToS3 = async (zipPath) => {
 };
 
 /**
- * Get the GutHub webhook hash signature.
+ * Validate a GitHub hash signature.
  *
  * https://developer.github.com/webhooks/securing/
  */
-const getSignature = () => {
+const validateSignature = (payload, xHubSignature) => {
   const hmac = crypto.createHmac('sha1', process.env.GITHUB_WEBHOOK_SECRET);
-  const hex = hmac.update(chunk.toString()).digest('hex');
+  const hex = hmac.update(payload, 'utf-8').digest('hex');
+  const sig = `sha1=${hex}`;
 
-  return `sha1=${hex}`;
+  const bufferA = Buffer.from(sig, 'utf8');
+  const bufferB = Buffer.from(xHubSignature, 'utf8');
+
+  return crypto.timingSafeEqual(bufferA, bufferB);
 }
 
 /**
@@ -57,34 +62,43 @@ const getSignature = () => {
  *
  * https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
  */
-const getJsonResponse = ({
-  statusCode = 200,
+const getResponse = ({
+  statusCode = 500,
   headers = {},
   body = '',
   isBase64Encoded = false,
 }) => {
-  return JSON.stringify({
+  return {
     isBase64Encoded,
     statusCode,
     headers,
     body,
-  });
+  };
 }
 
 /**
  * Run.
  */
-exports.handler = async (event, context, callback) => {
-  const { headers } = event;
-  const { repository } = context;
+exports.handler = async (event) => {
+  const { headers, body } = event;
+  const { repository } = JSON.parse(body);
 
-  if (headers['X-Hub-Signature'] !== getSignature()) {
-    callback(getJsonResponse(403));
+  if (
+    !headers
+    || headers['User-Agent'].indexOf('GitHub-Hookshot') < 0
+    || !validateSignature(body, headers['X-Hub-Signature'])
+  ) {
+    return getResponse({
+      statusCode: 403,
+      body: 'Invalid token',
+    });
   }
 
   const zipPath = cloneAndZip(repository);
 
   await uploadToS3(zipPath);
 
-  callback(getJsonResponse(200))
+  return {
+    statusCode: 200
+  };
 }
