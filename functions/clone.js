@@ -43,7 +43,7 @@ const uploadToS3 = async (zipPath) => {
 /**
  * Run.
  */
-exports.handler = async(event) => {
+exports.handler = async (event) => {
   const { repository } = event;
 
   const zipPath = cloneAndZip(repository);

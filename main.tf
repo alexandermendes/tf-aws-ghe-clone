@@ -4,7 +4,8 @@ locals {
 }
 
 resource "random_password" "webhook_secret" {
-  length = 32
+  length  = 32
+  special = false
 }
 
 module "lambda_api" {
@@ -16,7 +17,7 @@ module "lambda_api" {
   runtime       = "nodejs8.10"
   handler       = "handler"
   http_method   = "POST"
-  timeout       = 60
+  timeout       = 900
 
   # https://github.com/lambci/git-lambda-layer
   layers      = [
@@ -25,13 +26,9 @@ module "lambda_api" {
 
   environment = {
     variables = {
-      # TODO: Validate the webhook using all of these things
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
-      GITHUB_REPO           = var.github_repo
-      GITHUB_OWNER          = var.github_owner
-
-      S3_BUCKET             = aws_s3_bucket.codepipeline_source_bucket.id
       ZIP_NAME              = local.source_zip_name
+      S3_BUCKET             = aws_s3_bucket.codepipeline_source_bucket.id
     }
   }
 }
@@ -58,104 +55,4 @@ resource "aws_iam_role_policy" "lambda_s3_policy" {
 resource "aws_s3_bucket" "codepipeline_source_bucket" {
   bucket = "${local.name}-source"
   acl    = "private"
-}
-
-resource "aws_s3_bucket" "codepipeline_artifact_bucket" {
-  bucket = "${local.name}-artifacts"
-  acl    = "private"
-}
-
-data "aws_iam_policy_document" "assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["codepipeline.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "codepipeline_role" {
-  name = "${local.name}-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-}
-
-data "aws_iam_policy_document" "s3_artifact_policy_document" {
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-      "s3:GetBucketVersioning",
-      "s3:PutObject",
-    ]
-
-    resources = [
-      aws_s3_bucket.codepipeline_artifact_bucket.arn,
-      "${aws_s3_bucket.codepipeline_artifact_bucket.arn}/*",
-    ]
-  }
-}
-
-resource "aws_iam_role_policy" "s3_artifact_policy" {
-  name   = "${local.name}-artifact-policy"
-  role   = aws_iam_role.codepipeline_role.id
-  policy = data.aws_iam_policy_document.s3_artifact_policy_document.json
-}
-
-resource "aws_kms_key" "key" {
-  description             = "This key is used to encrypt bucket objects"
-  deletion_window_in_days = 10
-}
-
-resource "aws_codepipeline" "codepipeline" {
-  name     = local.name
-  role_arn = aws_iam_role.codepipeline_role.arn
-
-  artifact_store {
-    location = aws_s3_bucket.codepipeline_artifact_bucket.bucket
-    type     = "S3"
-
-    encryption_key {
-      id   = aws_kms_key.key.arn
-      type = "KMS"
-    }
-  }
-
-  stage {
-    name = "Source"
-
-    action {
-      name             = "Source"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "S3"
-      version          = "1"
-      output_artifacts = ["source_output"]
-
-      configuration    = {
-        S3Bucket             = aws_s3_bucket.codepipeline_source_bucket.id
-        S3ObjectKey          = local.source_zip_name
-        PollForSourceChanges = true
-      }
-    }
-  }
-
-  stage {
-    name = "Build"
-
-    action {
-      name             = "Build"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["build_output"]
-      version          = "1"
-
-      configuration = {
-        ProjectName = "test"
-      }
-    }
-  }
 }
