@@ -63,4 +63,9 @@ module "lambda" {
   ext           = "js"
   runtime       = "nodejs8.10"
   handler       = "handler"
+  environment = {
+    variables = {
+      REPOSITORIES = jsonencode(var.repositories)
+    }
+  }
 }
