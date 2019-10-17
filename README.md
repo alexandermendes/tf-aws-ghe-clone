@@ -22,3 +22,11 @@ should update it to the [latest tag](https://github.com/alexandermendes/tf-aws-l
 
 For additional variables and outputs see [variables.tf](./variables.tf) and
 [outputs.tf](./outputs.tf), respectively.
+
+### Workflow
+
+When a POST request is made to the API endpoint output via `webhook_url` a
+Lambda function is triggered. The function validates the `webhook_secret`, clones
+and zips the repository, and stores it in S3 (see `s3_id` and `s3_arn`). The
+object key will be the full name of the GitHub repository
+(e.g. `Codertocat/Hello-World.tar.gz`).
