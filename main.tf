@@ -1,6 +1,5 @@
 locals {
-  source_zip_name = "${var.github_repo}.tar.gz"
-  name            = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
+  name = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
 }
 
 resource "random_password" "webhook_secret" {
@@ -27,7 +26,6 @@ module "lambda_api" {
   environment = {
     variables = {
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
-      ZIP_NAME              = local.source_zip_name
       S3_BUCKET             = aws_s3_bucket.bucket.id
     }
   }

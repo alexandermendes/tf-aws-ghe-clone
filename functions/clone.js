@@ -8,9 +8,8 @@ const fs = require('fs');
  * @param {object} repository
  *   The repository details.
  */
-const cloneAndZip = ({ name, clone_url }) => {
+const cloneAndZip = ({ name, clone_url }, zipName) => {
   const tmpDir = '/tmp';
-  const zipName = process.env.ZIP_NAME;
   const execOpts = {
     encoding: 'utf8',
     stdio: 'inherit',
@@ -28,13 +27,13 @@ const cloneAndZip = ({ name, clone_url }) => {
 /**
  * Upload the zip to S3.
  */
-const uploadToS3 = async (zipPath) => {
+const uploadToS3 = async (zipPath, zipName) => {
   const s3 = new AWS.S3({
     apiVersion: '2006-03-01',
   });
   const params = {
     Bucket: process.env.S3_BUCKET,
-    Key: process.env.ZIP_NAME,
+    Key: zipName,
     Body: fs.createReadStream(zipPath),
   };
 
@@ -82,6 +81,8 @@ const getResponse = ({
 exports.handler = async (event) => {
   const { headers, body } = event;
   const { repository } = JSON.parse(body);
+  const { full_name } = repository;
+  const zipName = `${full_name}.tar.gz`;
 
   if (
     !headers
@@ -94,9 +95,9 @@ exports.handler = async (event) => {
     });
   }
 
-  const zipPath = cloneAndZip(repository);
+  const zipPath = cloneAndZip(repository, zipName);
 
-  await uploadToS3(zipPath);
+  await uploadToS3(zipPath, zipName);
 
   return {
     statusCode: 200
