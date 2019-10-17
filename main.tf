@@ -1,6 +1,6 @@
 locals {
   source_zip_name = "${var.github_repo}.tar.gz"
-  name            = replace(join("-", [var.namespace, var.pipeline_name]), "/^-/", "")
+  name            = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
 }
 
 resource "random_password" "webhook_secret" {
@@ -47,12 +47,12 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
-  name   = "${local.name}-source-policy"
+  name   = "${local.name}-s3-policy"
   role   = module.lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${local.name}-source"
+  bucket = "${local.name}"
   acl    = "private"
 }

@@ -11,7 +11,9 @@ GitHub Enterprise repositories by default.
 
 ```terraform
 module "clone" {
-  source      = "git::https://github.com/alexandermendes/tf-aws-ghe-clone.git?ref=tags/v1.0.0"
+  source = "git::https://github.com/alexandermendes/tf-aws-ghe-clone.git?ref=tags/v1.0.0"
+  region = "us-east-1"
+  
 }
 ```
 
