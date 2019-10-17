@@ -7,7 +7,7 @@ resource "random_password" "webhook_secret" {
   special = false
 }
 
-module "lambda_api" {
+module "clone_lambda_api" {
   source        = "git::https://github.com/alexandermendes/tf-aws-lambda-api.git?ref=tags/v1.6.5"
   function_name = "clone"
   namespace     = var.namespace
@@ -46,11 +46,21 @@ data "aws_iam_policy_document" "lambda_s3_policy_document" {
 
 resource "aws_iam_role_policy" "lambda_s3_policy" {
   name   = "${local.name}-s3-policy"
-  role   = module.lambda_api.lambda_role_id
+  role   = module.clone_lambda_api.lambda_role_id
   policy = data.aws_iam_policy_document.lambda_s3_policy_document.json
 }
 
 resource "aws_s3_bucket" "bucket" {
   bucket = "${local.name}"
   acl    = "private"
+}
+
+module "lambda" {
+  source        = "git::https://github.com/alexandermendes/tf-aws-lambda-file.git?ref=tags/v2.0.1"
+  function_name = "create-webhooks"
+  namespace     = var.namespace
+  dir           = "functions"
+  ext           = "js"
+  runtime       = "nodejs8.10"
+  handler       = "handler"
 }
