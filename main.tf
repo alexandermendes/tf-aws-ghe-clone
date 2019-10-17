@@ -59,7 +59,7 @@ module "lambda" {
   source        = "git::https://github.com/alexandermendes/tf-aws-lambda-file.git?ref=tags/v2.0.1"
   function_name = "create-webhooks"
   namespace     = var.namespace
-  dir           = "functions"
+  dir           = "${path.module}/functions"
   ext           = "js"
   runtime       = "nodejs8.10"
   handler       = "handler"
