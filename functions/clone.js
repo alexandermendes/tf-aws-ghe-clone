@@ -8,7 +8,7 @@ const fs = require('fs');
  * @param {object} repository
  *   The repository details.
  */
-const cloneAndZip = ({ name, clone_url }, zipName) => {
+const cloneAndZip = ({ full_name, clone_url }, zipName) => {
   const tmpDir = '/tmp';
   const execOpts = {
     encoding: 'utf8',
@@ -17,9 +17,9 @@ const cloneAndZip = ({ name, clone_url }, zipName) => {
 
   execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpDir} && git clone --depth 1 ${clone_url}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${clone_url} ${full_name}`, execOpts);
 
-  execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${name}`);
+  execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${full_name}`);
 
   return `${tmpDir}/${zipName}`;
 };
