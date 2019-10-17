@@ -1,6 +1,6 @@
 locals {
   name        = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
-  webhook_url = "${module.clone_lambda_api.invoke_url}/webhook";
+  webhook_url = "${module.clone_lambda_api.invoke_url}/webhook"
 }
 
 resource "random_password" "webhook_secret" {
