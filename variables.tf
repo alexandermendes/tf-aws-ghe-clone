@@ -15,3 +15,16 @@ variable "repositories" {
     owner = string
   }))
 }
+
+variable "github_username" {
+  description = "The username of a GitHub user."
+}
+
+variable "github_token" {
+  description = "An access token for the GitHub user."
+}
+
+variable "github_api_url" {
+  description = "The URL of the GitHub API."
+  default     = "https://api.github.com/"
+}

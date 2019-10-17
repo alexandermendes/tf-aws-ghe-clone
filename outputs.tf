@@ -1,5 +1,5 @@
 output "webhook_url" {
-  value       = "${module.clone_lambda_api.invoke_url}/webhook"
+  value       = local.webhook_url
   description = "The webhook URL to invoke the Lambda function"
 }
 

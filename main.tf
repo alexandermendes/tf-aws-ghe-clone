@@ -1,5 +1,6 @@
 locals {
-  name = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
+  name        = replace(join("-", [var.namespace, "clone"]), "/^-/", "")
+  webhook_url = "${module.clone_lambda_api.invoke_url}/webhook";
 }
 
 resource "random_password" "webhook_secret" {
@@ -65,7 +66,12 @@ module "lambda" {
   handler       = "handler"
   environment = {
     variables = {
-      REPOSITORIES = jsonencode(var.repositories)
+      REPOSITORIES    = jsonencode(var.repositories),
+      GITHUB_API_URL  = var.github_api_url,
+      GITHUB_USERNAME = var.github_username,
+      GITHUB_TOKEN    = var.github_token,
+      WEBHOOK_URL     = local.webhook_url
+      WEBHOOK_SECRET  = random_password.webhook_secret.result
     }
   }
 }
