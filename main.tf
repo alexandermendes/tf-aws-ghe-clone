@@ -62,8 +62,8 @@ module "lambda" {
   function_name = "create-webhooks"
   namespace     = var.namespace
   dir           = "${path.module}/functions"
-  ext           = "js"
-  runtime       = "nodejs8.10"
+  ext           = "py"
+  runtime       = "python3.7"
   handler       = "handler"
   environment = {
     variables = {
