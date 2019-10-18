@@ -28,6 +28,7 @@ module "clone_lambda_api" {
     variables = {
       GITHUB_WEBHOOK_SECRET = random_password.webhook_secret.result
       S3_BUCKET             = aws_s3_bucket.bucket.id
+      GITHUB_TOKEN          = var.github_token,
     }
   }
 }

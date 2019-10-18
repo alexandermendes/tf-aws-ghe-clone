@@ -15,9 +15,11 @@ const cloneAndZip = ({ full_name, clone_url }, zipName) => {
     stdio: 'inherit',
   };
 
+  const url = clone_url.replace(/^https:\/\//, `https://${process.env.GITHUB_TOKEN}`);
+
   execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpDir} && git clone --depth 1 ${clone_url} ${full_name}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${url} ${full_name}`, execOpts);
 
   execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${full_name}`);
 
