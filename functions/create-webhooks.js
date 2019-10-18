@@ -17,7 +17,9 @@ const getBasicAuth = () => {
 const request = (opts, data) => {
   return new Promise((resolve, reject) => {
     const options = {
-      host: process.env.GITHUB_API_URL,
+      host: process.env.GITHUB_API_URL
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, ''),
       headers: {
         'Content-Type': 'application/json',
         Authorization: getBasicAuth(),
@@ -28,7 +30,7 @@ const request = (opts, data) => {
     const req = http.request(options, resolve);
 
     req.on('error', reject);
-    req.write(data);
+    req.write(JSON.stringify(data));
     req.end();
   });
 };
@@ -38,7 +40,7 @@ const request = (opts, data) => {
  */
 const createWebhook = (owner, repo) => {
   const options = {
-    path: `/repos/${owner}/${repo}/hooks`,
+    path: `repos/${owner}/${repo}/hooks`,
     method: 'POST',
   };
 
