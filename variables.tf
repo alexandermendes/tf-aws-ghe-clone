@@ -21,7 +21,7 @@ variable "github_username" {
 }
 
 variable "github_token" {
-  description = "An access token for the GitHub user."
+  description = "An access token for the GitHub user with the `admin:repo_hook` and `repo` scopes."
 }
 
 variable "github_api_url" {

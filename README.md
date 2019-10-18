@@ -11,9 +11,11 @@ Enterprise repositories by default.
 
 ```terraform
 module "clone" {
-  source       = "git::https://github.com/alexandermendes/tf-aws-ghe-clone.git?ref=tags/v1.0.0"
-  region       = "us-east-1"
-  repositories = [
+  source          = "git::https://github.com/alexandermendes/tf-aws-ghe-clone.git?ref=tags/v1.0.0"
+  region          = "us-east-1"
+  github_username = ""
+  github_token    = "secret"
+  repositories    = [
     {
       owner = "Codertocat",
       name  = "Hello-World",
