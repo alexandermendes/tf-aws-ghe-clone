@@ -1,11 +1,9 @@
 import os
-import re
 import json
 import urllib
 import urllib.request
 import urllib.parse
 import base64
-from datetime import datetime
 
 
 def get_basic_auth():
@@ -26,16 +24,17 @@ def get_headers():
 
 def post(url, data):
     """POST some JSON data."""
+    payload = json.dumps(data).encode("utf-8")
     req = urllib.request.Request(
         url,
-        data=data,
+        data=payload,
         headers=get_headers()
     )
     urllib.request.urlopen(req)
 
 
-def handler():
-    """Run the Lambda function."""
+def create_webhooks():
+    """Create the webhooks."""
     data = {
         'name': 'web',
         'events': [
@@ -49,10 +48,20 @@ def handler():
         },
     }
 
-    repos = json.load(os.environ['REPOSITORIES'] or '{}')
+    repos = json.loads(os.environ['REPOSITORIES'] or '{}')
     api_url = os.environ['GITHUB_API_URL']
 
     for repo in repos:
-        endpoint = 'repos/{0}/{1}/hooks'.format(repo.owner, repo.name)
+        endpoint = 'repos/{0}/{1}/hooks'.format(repo['owner'], repo['name'])
         url = urllib.parse.urljoin(api_url, endpoint)
-        post(url, data)
+        try:
+            post(url, data)
+        except urllib.error.HTTPError as err:
+            # 422 will be returned if webhook already created
+            if err.code != 422:
+                raise
+
+
+def handler(event, context):
+    """Run the Lambda function."""
+    create_webhooks()
