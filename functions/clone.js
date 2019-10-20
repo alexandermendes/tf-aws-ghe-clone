@@ -8,19 +8,20 @@ const fs = require('fs');
  * @param {object} repository
  *   The repository details.
  */
-const cloneAndZip = ({ name, clone_url }) => {
+const cloneAndZip = ({ full_name, clone_url }, zipName) => {
   const tmpDir = '/tmp';
-  const zipName = process.env.ZIP_NAME;
   const execOpts = {
     encoding: 'utf8',
     stdio: 'inherit',
   };
 
+  const url = clone_url.replace(/^https:\/\//, `https://${process.env.GITHUB_TOKEN}@`);
+
   execSync(`rm -rf ${tmpDir}/*`, execOpts);
 
-  execSync(`cd ${tmpDir} && git clone --depth 1 ${clone_url}`, execOpts);
+  execSync(`cd ${tmpDir} && git clone --depth 1 ${url} ${full_name}`, execOpts);
 
-  execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${name}`);
+  execSync(`cd ${tmpDir} && tar -zcvf ${zipName} ${full_name}`);
 
   return `${tmpDir}/${zipName}`;
 };
@@ -28,13 +29,13 @@ const cloneAndZip = ({ name, clone_url }) => {
 /**
  * Upload the zip to S3.
  */
-const uploadToS3 = async (zipPath) => {
+const uploadToS3 = async (zipPath, zipName) => {
   const s3 = new AWS.S3({
     apiVersion: '2006-03-01',
   });
   const params = {
     Bucket: process.env.S3_BUCKET,
-    Key: process.env.ZIP_NAME,
+    Key: zipName,
     Body: fs.createReadStream(zipPath),
   };
 
@@ -82,6 +83,8 @@ const getResponse = ({
 exports.handler = async (event) => {
   const { headers, body } = event;
   const { repository } = JSON.parse(body);
+  const { full_name } = repository;
+  const zipName = `${full_name}.tar.gz`;
 
   if (
     !headers
@@ -94,9 +97,9 @@ exports.handler = async (event) => {
     });
   }
 
-  const zipPath = cloneAndZip(repository);
+  const zipPath = cloneAndZip(repository, zipName);
 
-  await uploadToS3(zipPath);
+  await uploadToS3(zipPath, zipName);
 
   return {
     statusCode: 200
