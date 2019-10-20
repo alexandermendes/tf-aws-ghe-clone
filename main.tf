@@ -13,8 +13,8 @@ module "clone_lambda_api" {
   function_name = "clone"
   namespace     = var.namespace
   dir           = "${path.module}/functions"
-  ext           = "js"
-  runtime       = "nodejs8.10"
+  ext           = "py"
+  runtime       = "python3.7"
   handler       = "handler"
   http_method   = "POST"
   timeout       = 900

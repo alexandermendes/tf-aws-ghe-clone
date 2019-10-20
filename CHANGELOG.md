@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/alexandermendes/tf-aws-ghe-clone/compare/v1.1.1...v1.2.0) (2019-10-20)
+
+
+### Features
+
+* account for private github repos ([41da8de](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/41da8de13ba9b058f8f62b54fb1abc1bbe40fe17))
+* add template for create webhooks Lambda ([833054e](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/833054e787560c0568b52b49b19b8fcff1b05106))
+* make scheduled lambda more flexible ([a0047c6](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/a0047c65e1bd4ee3f359798cf1e487a3b1d0f13d))
+* update create webhooks function ([b7d5588](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/b7d55887e4e432e8dee3eaf817d357cb85c54053))
+
+
+### Bug Fixes
+
+* add direct webhook URL to output ([8087c91](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/8087c91072bd44a031dcfc20a4e7d52034088965))
+* create webhook function ([feb1579](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/feb1579cab47458f3231b8015149cee4b2dc3647))
+* github clone URL ([3c74dc4](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/3c74dc40b0ea459a1e6b81d893628638cd03354f))
+* object key for cloned repos ([5a232b9](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/5a232b9922b322db86263e183cd6b884762391dd))
+* remove trailing semi-colon ([ff5507e](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/ff5507e155d44bcd6fe699d7032075babb57896a))
+* update create webhooks request ([15a3f37](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/15a3f37e35dfa5149603773b63318750f7839e73))
+* update lambda dir ([f9017d9](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/f9017d9eba39acc65b90425d9c26b4d7a97b82a9))
+
 ### [1.1.1](https://github.com/alexandermendes/tf-aws-ghe-clone/compare/v1.1.0...v1.1.1) (2019-10-17)
 
 ## 1.1.0 (2019-10-17)
