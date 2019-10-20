@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/alexandermendes/tf-aws-ghe-clone/compare/v1.2.0...v1.2.1) (2019-10-20)
+
+
+### Bug Fixes
+
+* enable versioning on source bucket ([6277ce1](https://github.com/alexandermendes/tf-aws-ghe-clone/commit/6277ce1f6febb2616a3c511bc2e7be4483a90dea))
+
 ## [1.2.0](https://github.com/alexandermendes/tf-aws-ghe-clone/compare/v1.1.1...v1.2.0) (2019-10-20)
 
 

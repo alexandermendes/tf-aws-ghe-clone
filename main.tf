@@ -55,6 +55,10 @@ resource "aws_iam_role_policy" "lambda_s3_policy" {
 resource "aws_s3_bucket" "bucket" {
   bucket = "${local.name}"
   acl    = "private"
+
+  versioning {
+    enabled = true
+  }
 }
 
 module "lambda" {
