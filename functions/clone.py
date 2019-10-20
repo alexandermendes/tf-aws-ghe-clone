@@ -13,7 +13,6 @@ def validate_signature(body, sig):
     key_bytes = bytes(os.environ['GITHUB_WEBHOOK_SECRET'], 'utf-8')
     hash_msg = hmac.new(key_bytes, body.encode('utf-8'), hashlib.sha1)
     digest = hash_msg.hexdigest()
-    print(digest, sig)
 
     return hmac.compare_digest(digest, sig.split('=')[1])
 
