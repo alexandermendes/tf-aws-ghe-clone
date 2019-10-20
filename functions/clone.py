@@ -1,9 +1,9 @@
-
 import os
 import hashlib
 import hmac
 import json
 import boto3 # pylint: disable=import-error
+
 
 def validate_signature(body, sig):
     """Validate a GitHub hash signature.
