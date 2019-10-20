@@ -28,3 +28,8 @@ variable "github_api_url" {
   description = "The URL of the GitHub API."
   default     = "https://api.github.com/"
 }
+
+variable "create_webhooks_schedule_expression" {
+  description = "The scheduling expression for the create webhooks Lambda function."
+  default     = "rate(5 minutes)"
+}

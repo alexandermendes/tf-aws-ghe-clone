@@ -77,24 +77,21 @@ module "lambda" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "every_five_minutes" {
-    name = "every-five-minutes"
-    description = "Fires every five minutes"
-    schedule_expression = "rate(5 minutes)"
+resource "aws_cloudwatch_event_rule" "scheduled_event" {
+    name                = "trigger-${local.name}"
+    description         = "A scheduled event to trigger the clone Lambda function"
+    schedule_expression = var.create_webhooks_schedule_expression
 }
-
 
 resource "aws_cloudwatch_event_target" "check_foo_every_five_minutes" {
-    rule = aws_cloudwatch_event_rule.every_five_minutes.name
-    target_id = "check_foo"
-    arn = module.lambda.arn
+    rule = aws_cloudwatch_event_rule.scheduled_event.name
+    arn  = module.lambda.arn
 }
 
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
-    statement_id = "AllowExecutionFromCloudWatch"
-    action = "lambda:InvokeFunction"
+resource "aws_lambda_permission" "allow_cloudwatch" {
+    statement_id  = "AllowExecutionFromCloudWatch"
+    action        = "lambda:InvokeFunction"
     function_name = module.lambda.function_name
-    principal = "events.amazonaws.com"
-    source_arn = aws_cloudwatch_event_rule.every_five_minutes.arn
+    principal     = "events.amazonaws.com"
+    source_arn    = aws_cloudwatch_event_rule.scheduled_event.arn
 }
